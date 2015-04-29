@@ -10,7 +10,7 @@ app.config.update(dict(
 	DEBUG = True,
 	SECRET_KEY = 'development key',
 	USERNAME = 'admin',
-	PASSWORD = 'defalut'
+	PASSWORD = 'loveyou'
 	))
 app.config.from_envvar('FLASKR_SETTINGS', silent=True)
 
@@ -20,11 +20,10 @@ def connect_db():
 	return rv
 
 def init_db():
-	with app.app_context():
-		db = get_db()
-		with app.open_resource('schema.sql', mode='r') as f:
-			db.cursor().executescript(f.read())
-		db.commit()
+	db = get_db()
+	with app.open_resource('schema.sql', mode='r') as f:
+		db.cursor().executescript(f.read())
+	db.commit()
 
 def get_db():
 	if not hasattr(g, 'sqlite_db'):
@@ -38,17 +37,19 @@ def close_db(error):
 
 @app.route('/')
 def show_entries():
-	cur = g.db.execute('select title, text from entries order by id desc')
-	entries = [dict(title=row[0], text=row[1])for row in cur.fetchall()]
+	db = get_db()
+	cur = db.execute('select title, text from entries order by id desc')
+	entries = cur.fetchall()
 	return render_template('show_entries.html', entries=entries)
 
 @app.route('/add', methods=['POST'])
 def add_entry():
 	if not session.get('logged_in'):
 		abort(401)
-	g.db.execute('insert into entries (title, text) values (?, ?)',
+	db = get_db()
+	db.execute('insert into entries (title, text) values (?, ?)',
 		[request.form['title'], request.form['text']])
-	g.db.commit()
+	db.commit()
 	flash('New entry was successfully posted')
 	return redirect(url_for('show_entries'))
 
@@ -70,7 +71,7 @@ def login():
 def logout():
 	session.pop('logged_in', None)
 	flash('You were logged out')
-	return redirect(url_for(show_entries))
+	return redirect(url_for('show_entries'))
 
 if __name__ == '__main__':
 	app.run()
