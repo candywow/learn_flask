@@ -16,3 +16,21 @@ class User(db.Model):
 
 	def __repr__(self):
 		return 'User %r' % self.username
+
+def init_db():
+	db.create_all()
+
+	admin = User('admin', 'admin@example.com')
+	guest = User('guest', 'guest@example.com')
+
+	db.session.add(admin)
+	db.session.add(guest)
+	db.session.commit()
+
+	users = User.query.all()
+	admin = User.query.filter_by(username='admin').first()
+
+	print users
+
+init_db()
+
