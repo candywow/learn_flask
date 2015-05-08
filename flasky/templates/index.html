@@ -12,6 +12,12 @@
 			Stranger
 		{% endif %}
 	</h1>
+
+	{% if not known %}
+	<p>Pleased to meet you!</p>
+	{% else %}
+	<p>Happy to see you again!</p>
+	{% endif %}
 </div>
 {{ wtf.quick_form(form) }} <!--The wtf.quick_form() function takes a Flask-WTF form object and renders it using default Bootstrap styles.-->
 {% endblock %}
